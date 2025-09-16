@@ -5,28 +5,27 @@ namespace Marshmallow\LaravelDatabaseSync\Classes;
 use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateAction;
 use Marshmallow\LaravelDatabaseSync\Actions\RemoveLocalFileAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\ImportDataAction;
 use Marshmallow\LaravelDatabaseSync\Actions\RemoveRemoteFileAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\CollectTableAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\CountRecordsAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\HasDeletedAtColumn;
+use Marshmallow\LaravelDatabaseSync\Classes\DatabaseDriverManager;
+use Marshmallow\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
 use Marshmallow\LaravelDatabaseSync\Exceptions\OutputWarningException;
 use Marshmallow\LaravelDatabaseSync\Actions\CopyRemoteFileToLocalAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\DumpDeletedDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\DumpFullTableDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\CollectStamplessTablesAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\DumpCreatedOrUpdatedDataAction;
 use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
 use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
 use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateForTableWithFallbackAction;
 
 class DatabaseSync
 {
+    protected DatabaseDriverInterface $driver;
+
     public function __construct(public Config $config, public DatabaseSyncCommand $command)
     {
         $config->date = GetLastSyncDateAction::handle($config, $command);
         // Capture the sync start time to prevent missing data during sync
         $config->sync_start_time = now();
+        
+        // Initialize database driver
+        $this->driver = (new DatabaseDriverManager())->driver();
     }
 
     public function sync(): self
@@ -71,7 +70,7 @@ class DatabaseSync
             /**
              * Get the list of tables that contain created_at or updated_at
              */
-            $stamped_tables = CollectTableAction::handle($this->config, $this->command);
+            $stamped_tables = $this->driver->collectTables($this->config, $this->command);
             if ($stamped_tables->count()) {
                 $stamped_tables->each(function ($table) use (&$tables_to_sync, &$has_data_to_sync) {
                     try {
@@ -90,7 +89,7 @@ class DatabaseSync
             }
 
             /** Start dumping the stampless tables, if they are provided in the config. */
-            $stampless_tables = CollectStamplessTablesAction::handle($this->config, $this->command);
+            $stampless_tables = $this->driver->collectStamplessTables($this->config, $this->command);
             if (count($stampless_tables)) {
                 $this->command->line(__("We will now start syncing all tables that dont have timestamp columns."));
                 $stampless_tables->each(function ($table) use (&$tables_to_sync, &$has_data_to_sync) {
@@ -104,7 +103,7 @@ class DatabaseSync
             if ($has_data_to_sync) {
                 $this->command->info(__('Transferring and importing data for :count tables in a single file...', ['count' => $tables_to_sync->count()]));
                 CopyRemoteFileToLocalAction::handle($this->config, $this->command);
-                ImportDataAction::handle($this->config, $this->command);
+                $this->driver->importData($this->config, $this->command);
                 RemoveRemoteFileAction::handle($this->config);
                 RemoveLocalFileAction::handle($this->config);
 
@@ -135,7 +134,7 @@ class DatabaseSync
             /**
              * Get the list of tables that contain created_at or updated_at
              */
-            $stamped_tables = CollectTableAction::handle($this->config, $this->command);
+            $stamped_tables = $this->driver->collectTables($this->config, $this->command);
             if ($stamped_tables->count()) {
                 $this->command->info(__('Using individual file transfers for each table (legacy mode)'));
                 $stamped_tables->each(function ($table) {
@@ -150,7 +149,7 @@ class DatabaseSync
             }
 
             /** Start syncing the stampless tables, if they are provided in the config. */
-            $stampless_tables = CollectStamplessTablesAction::handle($this->config, $this->command);
+            $stampless_tables = $this->driver->collectStamplessTables($this->config, $this->command);
             if (count($stampless_tables)) {
                 $this->command->line(__("We will now start syncing all tables that dont have timestamp columns."));
                 $stampless_tables->each(fn($table) => $this->syncFullTable($table));
@@ -178,17 +177,17 @@ class DatabaseSync
         $table_config = clone $this->config;
         $table_config->date = $table_sync_date;
 
-        $deleted_at_available = HasDeletedAtColumn::handle($table, $table_config);
+        $deleted_at_available = $this->driver->hasDeletedAtColumn($table, $table_config);
 
         try {
-            CountRecordsAction::handle($table, $deleted_at_available, $table_config, $this->command);
+            $this->driver->countRecords($table, $deleted_at_available, $table_config, $this->command);
         } catch (OutputWarningException $e) {
             // No records to sync for this table
             return false;
         }
 
-        DumpCreatedOrUpdatedDataAction::handle($table, $table_config, $this->command);
-        DumpDeletedDataAction::handle($table, $deleted_at_available, $table_config, $this->command);
+        $this->driver->dumpCreatedOrUpdatedData($table, $table_config, $this->command);
+        $this->driver->dumpDeletedData($table, $deleted_at_available, $table_config, $this->command);
 
         if ($this->command->isDebug()) {
             $this->command->newLine();
@@ -203,7 +202,7 @@ class DatabaseSync
             'table' => $table,
         ]));
 
-        DumpFullTableDataAction::handle($table, $this->config, $this->command);
+        $this->driver->dumpFullTableData($table, $this->config, $this->command);
 
         if ($this->command->isDebug()) {
             $this->command->newLine();
@@ -217,7 +216,7 @@ class DatabaseSync
     {
         if ($this->dumpTable($table)) {
             CopyRemoteFileToLocalAction::handle($this->config, $this->command);
-            ImportDataAction::handle($this->config, $this->command);
+            $this->driver->importData($this->config, $this->command);
             RemoveRemoteFileAction::handle($this->config);
             RemoveLocalFileAction::handle($this->config);
 
@@ -230,7 +229,7 @@ class DatabaseSync
     {
         $this->dumpFullTable($table);
         CopyRemoteFileToLocalAction::handle($this->config, $this->command);
-        ImportDataAction::handle($this->config, $this->command);
+        $this->driver->importData($this->config, $this->command);
         RemoveRemoteFileAction::handle($this->config);
         RemoveLocalFileAction::handle($this->config);
 

@@ -122,6 +122,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Database Driver Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Specify the database driver to use for the sync operations.
+    | Supported drivers: 'mysql', 'postgres'
+    | Default: mysql (for backward compatibility)
+    |
+    */
+
+    'database_driver' => env('DATABASE_SYNC_DATABASE_DRIVER', 'mysql'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | PostgreSQL Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration options specific to PostgreSQL driver
+    |
+    */
+
+    'postgres' => [
+        'dump_action_flags' => '--no-owner --no-privileges --data-only --column-inserts --on-conflict-do-nothing',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Process Timeout Configuration
     |--------------------------------------------------------------------------
     |
