@@ -13,11 +13,22 @@ class CountRecordsAction
     {
         $deletedWhere = $deletedAtAvailable ? ' AND deleted_at IS NOT NULL' : '';
         
-        $countCreatedOrUpdatedQuery = "SELECT COUNT(*) FROM {$table} WHERE (created_at >= '{$config->date}' OR updated_at >= '{$config->date}')";
+        $timestamps = GetTableTimestampColumns::handle($table, $config);
+        $conditions = [];
+        if (in_array('created_at', $timestamps)) $conditions[] = "created_at >= '{$config->date}'";
+        if (in_array('updated_at', $timestamps)) $conditions[] = "updated_at >= '{$config->date}'";
+
+        if (empty($conditions)) {
+            // Should not happen if collectTables works correctly
+            return 0;
+        }
+
+        $whereClause = implode(' OR ', $conditions);
+        $countCreatedOrUpdatedQuery = "SELECT COUNT(*) FROM {$table} WHERE ({$whereClause})";
         $countDeletedQuery = $deletedAtAvailable ? "SELECT COUNT(*) FROM {$table} WHERE deleted_at >= '{$config->date}'" : "SELECT 0";
 
-        $countCreatedOrUpdatedCommand = "PGPASSWORD='{$config->remote_database_password}' psql -h {$config->remote_user_and_host} -U {$config->remote_database_username} -d {$config->remote_database} -t -c \"{$countCreatedOrUpdatedQuery}\"";
-        $countDeletedCommand = "PGPASSWORD='{$config->remote_database_password}' psql -h {$config->remote_user_and_host} -U {$config->remote_database_username} -d {$config->remote_database} -t -c \"{$countDeletedQuery}\"";
+        $countCreatedOrUpdatedCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' psql -h 127.0.0.1 -U {$config->remote_database_username} -d {$config->remote_database} -t -c \\\"{$countCreatedOrUpdatedQuery}\\\"\"";
+        $countDeletedCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' psql -h 127.0.0.1 -U {$config->remote_database_username} -d {$config->remote_database} -t -c \\\"{$countDeletedQuery}\\\"\"";
 
         $process = Process::timeout($config->process_timeout);
         

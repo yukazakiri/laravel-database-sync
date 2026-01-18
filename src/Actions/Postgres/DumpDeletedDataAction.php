@@ -21,7 +21,7 @@ class DumpDeletedDataAction
         $dump_flags = config('database-sync.postgres.dump_action_flags');
         $dumpCommand = "pg_dump -h localhost -U {$config->remote_database_username} {$dump_flags} --table={$table} {$config->remote_database}";
         
-        $exportCommand = "ssh {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' " . $dumpCommand . " >> {$config->remote_temporary_file}\"";
+        $exportCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' " . $dumpCommand . " >> {$config->remote_temporary_file}\"";
 
         if ($command->isDebug()) {
             $command->info(__("Exporting deleted records for :table...", [

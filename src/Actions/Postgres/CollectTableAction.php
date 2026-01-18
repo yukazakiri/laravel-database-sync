@@ -15,9 +15,9 @@ class CollectTableAction
             ->map(fn($table) => "AND table_name != '{$table}'")
             ->implode(' ');
 
-        $query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' {$ignore_table_query} AND (table_name IN (SELECT table_name FROM information_schema.columns WHERE column_name IN ('created_at', 'updated_at') AND table_schema = 'public'))";
+        $query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' {$ignore_table_query} AND EXISTS (SELECT 1 FROM information_schema.columns WHERE columns.table_name = tables.table_name AND column_name IN ('created_at', 'updated_at') AND table_schema = 'public')";
 
-        $psqlCommand = "PGPASSWORD='{$config->remote_database_password}' psql -h {$config->remote_user_and_host} -U {$config->remote_database_username} -d {$config->remote_database} -t -c \"{$query}\"";
+        $psqlCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' psql -h 127.0.0.1 -U {$config->remote_database_username} -d {$config->remote_database} -t -c \\\"{$query}\\\"\"";
 
         $process = Process::timeout($config->process_timeout);
         $result = $process->run($psqlCommand);
