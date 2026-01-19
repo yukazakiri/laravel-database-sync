@@ -18,7 +18,17 @@ class CopyRemoteFileToLocalAction
         if ($command->isDebug()) {
             $command->info(__('Copying file to local machine...'));
         }
-        $copyCommand = "scp -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host}:{$config->remote_temporary_file} {$config->local_temporary_file}";
+
+        $host = $config->remote_user_and_host;
+        $portArg = '';
+
+        // Extract port if present in host string (e.g. "user@host -p 2222")
+        if (preg_match('/^(.*?)\s+-p\s+(\d+)(.*)$/i', $host, $matches)) {
+            $host = trim($matches[1] . $matches[3]);
+            $portArg = "-P {$matches[2]}";
+        }
+
+        $copyCommand = "scp {$portArg} -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$host}:{$config->remote_temporary_file} {$config->local_temporary_file}";
 
         $process = Process::timeout($config->process_timeout);
         $result = $process->run($copyCommand);
