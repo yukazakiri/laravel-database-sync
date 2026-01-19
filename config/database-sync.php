@@ -47,7 +47,7 @@ return [
 
     'temporary_file_location' => [
         'remote' => env('DATABASE_SYNC_TEMPORARY_FILE_LOCATION_REMOTE', '~/new_data.sql'),
-        'local' => env('DATABASE_SYNC_TEMPORARY_FILE_LOCATION_LOCAL', '~/Downloads/new_data.sql'),
+        'local' => env('DATABASE_SYNC_TEMPORARY_FILE_LOCATION_LOCAL', storage_path('new_data.sql')),
     ],
 
     /*

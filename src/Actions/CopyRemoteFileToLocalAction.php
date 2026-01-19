@@ -18,7 +18,7 @@ class CopyRemoteFileToLocalAction
         if ($command->isDebug()) {
             $command->info(__('Copying file to local machine...'));
         }
-        $copyCommand = "scp {$config->remote_user_and_host}:{$config->remote_temporary_file} {$config->local_temporary_file}";
+        $copyCommand = "scp -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host}:{$config->remote_temporary_file} {$config->local_temporary_file}";
 
         $process = Process::timeout($config->process_timeout);
         $result = $process->run($copyCommand);
