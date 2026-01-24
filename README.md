@@ -4,29 +4,40 @@ A powerful Laravel package that enables seamless synchronization of data from a 
 
 ## Table of Contents
 
--   [Requirements](#requirements)
--   [Installation](#installation)
--   [Configuration](#configuration)
-    -   [Environment Variables](#environment-variables)
--   [Usage](#usage)
-    -   [Basic Synchronization](#basic-synchronization)
-    -   [Advanced Options](#advanced-options)
-    -   [Per-Table Sync Tracking](#per-table-sync-tracking)
-    -   [Table Configuration](#table-configuration)
-    -   [Timeout Configuration](#timeout-configuration)
-    -   [Synchronization Suites](#synchronization-suites)
-    -   [Multi-Tenant Support](#multi-tenant-support)
--   [Testing](#testing)
-    -   [Test Structure](#test-structure)
-    -   [Writing Tests](#writing-tests)
--   [Security](#security)
--   [Support](#support)
--   [License](#license)
+- [Requirements](#requirements)
+- [What's New in This Fork](#whats-new-in-this-fork)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Environment Variables](#environment-variables)
+- [Usage](#usage)
+  - [Basic Synchronization](#basic-synchronization)
+  - [Advanced Options](#advanced-options)
+  - [Per-Table Sync Tracking](#per-table-sync-tracking)
+  - [Table Configuration](#table-configuration)
+  - [Timeout Configuration](#timeout-configuration)
+  - [Synchronization Suites](#synchronization-suites)
+  - [Multi-Tenant Support](#multi-tenant-support)
+- [Testing](#testing)
+  - [Test Structure](#test-structure)
+  - [Writing Tests](#writing-tests)
+- [Security](#security)
+- [Support](#support)
+- [License](#license)
 
 ## Requirements
 
--   PHP ^8.2
--   Laravel ^10.0|^11.0|^12.0
+- PHP ^8.2
+- Laravel ^10.0|^11.0|^12.0
+
+## What's New in This Fork
+
+This fork builds on the original PostgreSQL support with improvements focused on real-world SSH and containerized workflows:
+
+- **Postgres schema bootstrapping**: If the local database is empty, the sync now pulls schema objects first (tables, enums, types) so data imports succeed.
+- **Custom `pg_dump` binary**: You can point the sync to a Postgres 17 client binary on the remote host to avoid version mismatch errors.
+- **Sail-friendly temp file location**: The default local dump path uses Laravel's `storage_path()` so it works inside Docker containers.
+- **SSH port parsing for `scp`**: Custom SSH ports (e.g. `-p 25610`) are translated to `scp`'s `-P` flag automatically.
+- **Stricter validation and debug output**: Dump, copy, and import steps now fail loudly when files are missing or empty to prevent silent no-op syncs.
 
 ## Installation
 
@@ -54,7 +65,12 @@ DATABASE_SYNC_REMOTE_DATABASE_USERNAME=forge
 DATABASE_SYNC_REMOTE_DATABASE_PASSWORD=
 
 DATABASE_SYNC_TEMPORARY_FILE_LOCATION_REMOTE=~/new_data.sql
-DATABASE_SYNC_TEMPORARY_FILE_LOCATION_LOCAL=~/Downloads/new_data.sql
+DATABASE_SYNC_TEMPORARY_FILE_LOCATION_LOCAL=/path/to/your/app/storage/new_data.sql
+
+# Postgres-specific options
+DATABASE_SYNC_POSTGRES_PG_DUMP_BINARY=/usr/lib/postgresql/17/bin/pg_dump
+DATABASE_SYNC_POSTGRES_SCHEMA_DUMP_FLAGS="--schema-only --no-owner --no-privileges"
+DATABASE_SYNC_POSTGRES_CREATE_MISSING_TABLES=true
 ```
 
 > **Important**: When connecting to a Forge-provisioned database server, you must use the main database user that was created during the initial server provisioning. Other database users created afterward may not have the necessary privileges to execute the required database commands for synchronization.
@@ -81,24 +97,24 @@ php artisan db-sync [options]
 
 Available options:
 
--   `--date`: Sync records from a specific date
--   `--suite`: Use a predefined suite of tables
--   `--table`: Sync a specific table
--   `--tenant`: Specify tenant for multi-tenant applications
--   `--skip-landlord`: Skip landlord database in multi-tenant setup
--   `--full-sync`: Sync the full table without a date constraint
--   `--status`: View the sync history and status for all tables
--   `--individual-transfers`: Use individual file transfers for each table (legacy behavior)
+- `--date`: Sync records from a specific date
+- `--suite`: Use a predefined suite of tables
+- `--table`: Sync a specific table
+- `--tenant`: Specify tenant for multi-tenant applications
+- `--skip-landlord`: Skip landlord database in multi-tenant setup
+- `--full-sync`: Sync the full table without a date constraint
+- `--status`: View the sync history and status for all tables
+- `--individual-transfers`: Use individual file transfers for each table (legacy behavior)
 
 ### Per-Table Sync Tracking
 
 The package now tracks the last sync date for each individual table, preventing data loss when syncing single tables. This means:
 
--   Each table maintains its own sync history
--   When syncing a specific table with `--table`, only that table's sync date is considered
--   The package automatically falls back to the global sync date for backward compatibility
--   You can view the sync status of all tables using the `--status` option
--   **Sync timestamps are captured at the start of the process to prevent missing data created during sync**
+- Each table maintains its own sync history
+- When syncing a specific table with `--table`, only that table's sync date is considered
+- The package automatically falls back to the global sync date for backward compatibility
+- You can view the sync status of all tables using the `--status` option
+- **Sync timestamps are captured at the start of the process to prevent missing data created during sync**
 
 #### Viewing Sync Status
 
@@ -124,8 +140,8 @@ This will display a table showing each table name and its last sync date, helpin
 
 The package uses **batch file transfers** by default to minimize network overhead:
 
--   **Batch Mode (Default)**: All tables are dumped to a single file and transferred once
--   **Individual Mode**: Each table is transferred separately (legacy behavior)
+- **Batch Mode (Default)**: All tables are dumped to a single file and transferred once
+- **Individual Mode**: Each table is transferred separately (legacy behavior)
 
 #### Configuration
 
@@ -143,16 +159,16 @@ DATABASE_SYNC_FILE_TRANSFER_MODE=batch
 
 #### Benefits of Batch Transfer
 
--   **Reduced network overhead**: Single file transfer instead of multiple
--   **Faster sync times**: Especially noticeable with many tables
--   **Better compression**: SSH compression works more efficiently on larger files
--   **Lower resource usage**: Fewer process spawns and file operations
+- **Reduced network overhead**: Single file transfer instead of multiple
+- **Faster sync times**: Especially noticeable with many tables
+- **Better compression**: SSH compression works more efficiently on larger files
+- **Lower resource usage**: Fewer process spawns and file operations
 
 #### When Individual Transfers Are Used
 
--   Single table sync (`--table=tablename`)
--   Explicit override (`--individual-transfers`)
--   Config set to `individual` mode
+- Single table sync (`--table=tablename`)
+- Explicit override (`--individual-transfers`)
+- Config set to `individual` mode
 
 ### Table Configuration
 
@@ -189,9 +205,9 @@ DATABASE_SYNC_PROCESS_TIMEOUT=600
 
 This timeout applies to:
 
--   MySQL dump operations (`mysqldump`)
--   MySQL import operations (`mysql`)
--   File transfer operations (`scp`)
+- MySQL dump operations (`mysqldump`)
+- MySQL import operations (`mysql`)
+- File transfer operations (`scp`)
 
 ### Synchronization Suites
 
@@ -272,17 +288,16 @@ composer test-coverage
 
 The test suite includes:
 
--   **Unit Tests**: Testing individual components
+- **Unit Tests**: Testing individual components
+  - `Config` class tests
+  - `DatabaseSync` class tests
+  - Other utility classes
 
-    -   `Config` class tests
-    -   `DatabaseSync` class tests
-    -   Other utility classes
-
--   **Feature Tests**: Testing the package functionality
-    -   Command execution tests
-    -   Multi-tenant functionality
-    -   Suite configurations
-    -   Table filtering
+- **Feature Tests**: Testing the package functionality
+  - Command execution tests
+  - Multi-tenant functionality
+  - Suite configurations
+  - Table filtering
 
 ### Writing Tests
 
@@ -297,9 +312,9 @@ test('your test description', function () {
 
 ## Security
 
--   Never commit sensitive database credentials to version control
--   Always use environment variables for sensitive information
--   Ensure proper access controls on both remote and local databases
+- Never commit sensitive database credentials to version control
+- Always use environment variables for sensitive information
+- Ensure proper access controls on both remote and local databases
 
 ## Support
 

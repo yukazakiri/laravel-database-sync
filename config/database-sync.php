@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -47,7 +49,7 @@ return [
 
     'temporary_file_location' => [
         'remote' => env('DATABASE_SYNC_TEMPORARY_FILE_LOCATION_REMOTE', '~/new_data.sql'),
-        'local' => env('DATABASE_SYNC_TEMPORARY_FILE_LOCATION_LOCAL', '~/Downloads/new_data.sql'),
+        'local' => env('DATABASE_SYNC_TEMPORARY_FILE_LOCATION_LOCAL', storage_path('new_data.sql')),
     ],
 
     /*
@@ -118,6 +120,35 @@ return [
 
     'mysql' => [
         'dump_action_flags' => '--skip-lock-tables --no-create-info --complete-insert --skip-triggers --replace',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Database Driver Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Specify the database driver to use for the sync operations.
+    | Supported drivers: 'mysql', 'postgres'
+    | Default: mysql (for backward compatibility)
+    |
+    */
+
+    'database_driver' => env('DATABASE_SYNC_DATABASE_DRIVER', 'mysql'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | PostgreSQL Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration options specific to PostgreSQL driver
+    |
+    */
+
+    'postgres' => [
+        'dump_action_flags' => '--no-owner --no-privileges --data-only --column-inserts --on-conflict-do-nothing',
+        'pg_dump_binary' => env('DATABASE_SYNC_POSTGRES_PG_DUMP_BINARY', 'pg_dump'),
+        'schema_dump_flags' => env('DATABASE_SYNC_POSTGRES_SCHEMA_DUMP_FLAGS', '--schema-only --no-owner --no-privileges'),
+        'create_missing_tables' => env('DATABASE_SYNC_POSTGRES_CREATE_MISSING_TABLES', true),
     ],
 
     /*

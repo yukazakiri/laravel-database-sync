@@ -31,6 +31,17 @@ class GetLastSyncDateForTableWithFallbackAction
         }
 
         // If no table-specific date, try global sync date
+        if ($config->date) {
+            if ($command->isDebug()) {
+                $command->line(__("Using global sync date for :table: :date", [
+                    'table' => $table,
+                    'date' => $config->date->format('Y-m-d H:i:s'),
+                ]));
+            }
+            return $config->date;
+        }
+
+        // If no table-specific date, try global sync date
         if ($last_sync_date = GetLastSyncDateValueFromStorageAction::handle($config)) {
             if ($command->isDebug()) {
                 $command->line(__("Using global sync date for :table: :date", [
