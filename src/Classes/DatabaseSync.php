@@ -1,48 +1,94 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Marshmallow\LaravelDatabaseSync\Classes;
 
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Exception;
+use Illuminate\Support\Collection;
+use Marshmallow\LaravelDatabaseSync\Actions\CopyRemoteFileToLocalAction;
 use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateAction;
+use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateForTableWithFallbackAction;
+use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
+use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
+use Marshmallow\LaravelDatabaseSync\Actions\Postgres\DumpSchemaForTablesAction;
+use Marshmallow\LaravelDatabaseSync\Actions\Postgres\GetLocalTablesAction;
+use Marshmallow\LaravelDatabaseSync\Actions\Postgres\GetMissingLocalTablesAction;
 use Marshmallow\LaravelDatabaseSync\Actions\RemoveLocalFileAction;
 use Marshmallow\LaravelDatabaseSync\Actions\RemoveRemoteFileAction;
-use Marshmallow\LaravelDatabaseSync\Classes\DatabaseDriverManager;
+use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 use Marshmallow\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
 use Marshmallow\LaravelDatabaseSync\Exceptions\OutputWarningException;
-use Marshmallow\LaravelDatabaseSync\Actions\CopyRemoteFileToLocalAction;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
-use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateForTableWithFallbackAction;
 
-class DatabaseSync
+final class DatabaseSync
 {
-    protected DatabaseDriverInterface $driver;
+    private DatabaseDriverInterface $driver;
 
     public function __construct(public Config $config, public DatabaseSyncCommand $command)
     {
         $config->date = GetLastSyncDateAction::handle($config, $command);
         // Capture the sync start time to prevent missing data during sync
         $config->sync_start_time = now();
-        
+
         // Initialize database driver
         $this->driver = (new DatabaseDriverManager())->driver();
     }
 
+    public static function getTenantDatabaseName(string|array $tenant_settings, string|int $tenant_key): string
+    {
+        return is_array($tenant_settings) ? $tenant_key : $tenant_settings;
+    }
+
+    public static function getDatabaseNames(string|array $database_names): array
+    {
+        return is_string($database_names) ? [$database_names, $database_names] : $database_names;
+    }
+
     public function sync(): self
     {
-        $this->command->line(__("Sync :remote_database", ['remote_database' => $this->config->remote_database]));
+        $this->command->line(__('Sync :remote_database', ['remote_database' => $this->config->remote_database]));
 
         // Determine transfer mode
         $use_batch_transfer = $this->shouldUseBatchTransfer();
-        
+
         if ($use_batch_transfer) {
             return $this->syncWithBatchTransfer();
-        } else {
-            return $this->syncWithIndividualTransfers();
         }
+
+        return $this->syncWithIndividualTransfers();
+
     }
 
-    protected function shouldUseBatchTransfer(): bool
+    public function setDatabase(string|array $database_names): self
+    {
+        [$this->config->remote_database, $this->config->local_database] = self::getDatabaseNames($database_names);
+
+        return $this;
+    }
+
+    public function getDatabase(): string
+    {
+        return $this->config->remote_database;
+    }
+
+    public function setMultiTenantDatabaseType(string $multi_tenant_database_type): self
+    {
+        $this->config->multi_tenant_database_type = $multi_tenant_database_type;
+
+        return $this;
+    }
+
+    public function getMultiTenantDatabaseType(): ?string
+    {
+        return $this->config->multi_tenant_database_type;
+    }
+
+    public function isMultiTenantDatabase(): bool
+    {
+        return ! is_null($this->config->multi_tenant_database_type);
+    }
+
+    private function shouldUseBatchTransfer(): bool
     {
         // If syncing a single table, use individual transfers
         if ($this->command->option('table')) {
@@ -58,12 +104,12 @@ class DatabaseSync
         return config('database-sync.file_transfer_mode', 'batch') === 'batch';
     }
 
-    protected function syncWithBatchTransfer(): self
+    private function syncWithBatchTransfer(): self
     {
         try {
             // Clear the remote temporary file before starting
             RemoveRemoteFileAction::handle($this->config);
-            
+
             $tables_to_sync = collect();
             $has_data_to_sync = false;
 
@@ -71,13 +117,19 @@ class DatabaseSync
              * Get the list of tables that contain created_at or updated_at
              */
             $stamped_tables = $this->driver->collectTables($this->config, $this->command);
+
+            /** Start dumping the stampless tables, if they are provided in the config. */
+            $stampless_tables = $this->driver->collectStamplessTables($this->config, $this->command);
+
+            $this->ensureMissingTablesExist($stamped_tables->merge($stampless_tables));
+
             if ($stamped_tables->count()) {
                 $stamped_tables->each(function ($table) use (&$tables_to_sync, &$has_data_to_sync) {
                     try {
                         $result = $this->command->option('full-sync')
                             ? $this->dumpFullTable($table)
                             : $this->dumpTable($table);
-                        
+
                         if ($result) {
                             $tables_to_sync->push($table);
                             $has_data_to_sync = true;
@@ -88,10 +140,8 @@ class DatabaseSync
                 });
             }
 
-            /** Start dumping the stampless tables, if they are provided in the config. */
-            $stampless_tables = $this->driver->collectStamplessTables($this->config, $this->command);
             if (count($stampless_tables)) {
-                $this->command->line(__("We will now start syncing all tables that dont have timestamp columns."));
+                $this->command->line(__('We will now start syncing all tables that dont have timestamp columns.'));
                 $stampless_tables->each(function ($table) use (&$tables_to_sync, &$has_data_to_sync) {
                     $this->dumpFullTable($table);
                     $tables_to_sync->push($table);
@@ -119,7 +169,7 @@ class DatabaseSync
             LogLastSyncDateValueToStorageWithTimestampAction::handle($this->config, $this->config->sync_start_time);
             $this->command->line(__('Database sync complete! 🚀'));
             $this->command->newLine();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->command->error(__('Sync failed: :error', ['error' => $e->getMessage()]));
             $this->command->warn(__('Sync date not updated due to failure. Please resolve the issue and try again.'));
             throw $e;
@@ -128,13 +178,17 @@ class DatabaseSync
         return $this;
     }
 
-    protected function syncWithIndividualTransfers(): self
+    private function syncWithIndividualTransfers(): self
     {
         try {
             /**
              * Get the list of tables that contain created_at or updated_at
              */
             $stamped_tables = $this->driver->collectTables($this->config, $this->command);
+            $stampless_tables = $this->driver->collectStamplessTables($this->config, $this->command);
+
+            $this->ensureMissingTablesExist($stamped_tables->merge($stampless_tables));
+
             if ($stamped_tables->count()) {
                 $this->command->info(__('Using individual file transfers for each table (legacy mode)'));
                 $stamped_tables->each(function ($table) {
@@ -148,18 +202,16 @@ class DatabaseSync
                 });
             }
 
-            /** Start syncing the stampless tables, if they are provided in the config. */
-            $stampless_tables = $this->driver->collectStamplessTables($this->config, $this->command);
             if (count($stampless_tables)) {
-                $this->command->line(__("We will now start syncing all tables that dont have timestamp columns."));
-                $stampless_tables->each(fn($table) => $this->syncFullTable($table));
+                $this->command->line(__('We will now start syncing all tables that dont have timestamp columns.'));
+                $stampless_tables->each(fn ($table) => $this->syncFullTable($table));
             }
 
             // Only update the sync date if everything succeeded
             LogLastSyncDateValueToStorageWithTimestampAction::handle($this->config, $this->config->sync_start_time);
             $this->command->line(__('Database sync complete! 🚀'));
             $this->command->newLine();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->command->error(__('Sync failed: :error', ['error' => $e->getMessage()]));
             $this->command->warn(__('Sync date not updated due to failure. Please resolve the issue and try again.'));
             throw $e;
@@ -168,7 +220,7 @@ class DatabaseSync
         return $this;
     }
 
-    protected function dumpTable(string $table): bool
+    private function dumpTable(string $table): bool
     {
         // Get table-specific sync date or fallback to global/default
         $table_sync_date = GetLastSyncDateForTableWithFallbackAction::handle($table, $this->config, $this->command);
@@ -196,9 +248,9 @@ class DatabaseSync
         return true;
     }
 
-    protected function dumpFullTable(string $table): bool
+    private function dumpFullTable(string $table): bool
     {
-        $this->command->info(__(":table: syncing all records", [
+        $this->command->info(__(':table: syncing all records', [
             'table' => $table,
         ]));
 
@@ -212,7 +264,7 @@ class DatabaseSync
     }
 
     // Keep the old methods for backward compatibility and single table syncing
-    protected function syncTable(string $table)
+    private function syncTable(string $table)
     {
         if ($this->dumpTable($table)) {
             CopyRemoteFileToLocalAction::handle($this->config, $this->command);
@@ -225,7 +277,7 @@ class DatabaseSync
         }
     }
 
-    protected function syncFullTable(string $table)
+    private function syncFullTable(string $table)
     {
         $this->dumpFullTable($table);
         CopyRemoteFileToLocalAction::handle($this->config, $this->command);
@@ -241,40 +293,32 @@ class DatabaseSync
         }
     }
 
-    public function setDatabase(string|array $database_names): self
+    private function ensureMissingTablesExist(Collection $tables): void
     {
-        [$this->config->remote_database, $this->config->local_database] = self::getDatabaseNames($database_names);
-        return $this;
+        if ($tables->isEmpty() || ! $this->shouldCreateMissingTables()) {
+            return;
+        }
+
+        $localTables = GetLocalTablesAction::handle($this->config, $this->command);
+
+        if ($localTables->isEmpty()) {
+            DumpSchemaForTablesAction::handle(collect(), $this->config, $this->command, true);
+
+            return;
+        }
+
+        $missingTables = GetMissingLocalTablesAction::handle($tables, $this->config, $this->command);
+
+        if ($missingTables->isEmpty()) {
+            return;
+        }
+
+        DumpSchemaForTablesAction::handle($missingTables, $this->config, $this->command);
     }
 
-    public function getDatabase(): string
+    private function shouldCreateMissingTables(): bool
     {
-        return $this->config->remote_database;
-    }
-
-    public function setMultiTenantDatabaseType(string $multi_tenant_database_type): self
-    {
-        $this->config->multi_tenant_database_type = $multi_tenant_database_type;
-        return $this;
-    }
-
-    public function getMultiTenantDatabaseType(): ?string
-    {
-        return $this->config->multi_tenant_database_type;
-    }
-
-    public static function getTenantDatabaseName(string|array $tenant_settings, string|int $tenant_key): string
-    {
-        return is_array($tenant_settings) ? $tenant_key : $tenant_settings;
-    }
-
-    public function isMultiTenantDatabase(): bool
-    {
-        return !is_null($this->config->multi_tenant_database_type);
-    }
-
-    public static function getDatabaseNames(string|array $database_names): array
-    {
-        return is_string($database_names) ? [$database_names, $database_names] : $database_names;
+        return config('database-sync.database_driver') === 'postgres'
+            && config('database-sync.postgres.create_missing_tables', true);
     }
 }

@@ -31,7 +31,7 @@ class DumpCreatedOrUpdatedDataAction
         
         // Create a temporary query to get only the needed records
         $queryCommand = "SELECT * FROM {$table} WHERE {$whereClause}";
-        $dumpCommand = "pg_dump -h localhost -U {$config->remote_database_username} {$dump_flags} --table={$table} {$config->remote_database}";
+        $dumpCommand = "{$config->pg_dump_binary} -h localhost -U {$config->remote_database_username} {$dump_flags} --table={$table} {$config->remote_database}";
         
         $exportCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' " . $dumpCommand . " >> {$config->remote_temporary_file}\"";
         
@@ -42,6 +42,17 @@ class DumpCreatedOrUpdatedDataAction
         }
 
         $process = Process::timeout($config->process_timeout);
-        $process->run($exportCommand)->output();
+        $result = $process->run($exportCommand);
+
+        if ($result->failed()) {
+            throw new \Exception(__('Failed to export created/updated records for :table: :error', [
+                'table' => $table,
+                'error' => $result->errorOutput(),
+            ]));
+        }
+
+        if ($command->isDebug() && trim($result->output()) !== '') {
+            $command->line($result->output());
+        }
     }
 }

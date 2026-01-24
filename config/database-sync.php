@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -144,6 +146,9 @@ return [
 
     'postgres' => [
         'dump_action_flags' => '--no-owner --no-privileges --data-only --column-inserts --on-conflict-do-nothing',
+        'pg_dump_binary' => env('DATABASE_SYNC_POSTGRES_PG_DUMP_BINARY', 'pg_dump'),
+        'schema_dump_flags' => env('DATABASE_SYNC_POSTGRES_SCHEMA_DUMP_FLAGS', '--schema-only --no-owner --no-privileges'),
+        'create_missing_tables' => env('DATABASE_SYNC_POSTGRES_CREATE_MISSING_TABLES', true),
     ],
 
     /*

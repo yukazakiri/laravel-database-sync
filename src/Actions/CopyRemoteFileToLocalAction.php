@@ -36,5 +36,13 @@ class CopyRemoteFileToLocalAction
         if ($result->failed()) {
             throw new \Exception(__('Failed to copy remote file to local: :error', ['error' => $result->errorOutput()]));
         }
+
+        if (! file_exists($config->local_temporary_file)) {
+            throw new \Exception(__('Local dump file not found after copy: :path', ['path' => $config->local_temporary_file]));
+        }
+
+        if (filesize($config->local_temporary_file) === 0) {
+            throw new \Exception(__('Local dump file is empty after copy: :path', ['path' => $config->local_temporary_file]));
+        }
     }
 }
