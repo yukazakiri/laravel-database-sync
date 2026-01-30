@@ -1,8 +1,8 @@
 <?php
 
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Classes\DatabaseSync;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\DatabaseSync;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Illuminate\Console\OutputStyle;
 use Symfony\Component\Console\Output\BufferedOutput;

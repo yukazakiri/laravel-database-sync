@@ -1,10 +1,10 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions;
+namespace Yukazakiri\LaravelDatabaseSync\Actions;
 
 use Illuminate\Support\Facades\Process;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 
 class CopyRemoteFileToLocalAction
 {
@@ -37,7 +37,7 @@ class CopyRemoteFileToLocalAction
             throw new \Exception(__('Failed to copy remote file to local: :error', ['error' => $result->errorOutput()]));
         }
 
-        if (! file_exists($config->local_temporary_file)) {
+        if (!file_exists($config->local_temporary_file)) {
             throw new \Exception(__('Local dump file not found after copy: :path', ['path' => $config->local_temporary_file]));
         }
 

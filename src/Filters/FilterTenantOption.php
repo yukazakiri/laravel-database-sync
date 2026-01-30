@@ -1,8 +1,8 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Filters;
+namespace Yukazakiri\LaravelDatabaseSync\Filters;
 
-use Marshmallow\LaravelDatabaseSync\Classes\DatabaseSync;
+use Yukazakiri\LaravelDatabaseSync\Classes\DatabaseSync;
 
 class FilterTenantOption
 {

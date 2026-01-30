@@ -1,6 +1,6 @@
 <?php
 
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
 
 test('config sets custom timeout from configuration', function () {
     config(['database-sync.process_timeout' => 600]);

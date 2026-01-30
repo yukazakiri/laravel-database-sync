@@ -1,23 +1,23 @@
 {
-    "name": "marshmallow/laravel-database-sync",
+    "name": "yukazakiri/laravel-database-sync",
     "description": "Sync your production database in to your local database to start developing with production data",
     "keywords": [
-        "marshmallow",
+        "yukazakiri",
         "Laravel"
     ],
-    "homepage": "https://github.com/marshmallow-packages/laravel-database-sync",
+    "homepage": "https://github.com/yukazakiri/laravel-database-sync",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
             "name": "Stef",
-            "email": "stef@marshmallow.dev",
-            "homepage": "https://marshmallow.dev",
+            "email": "stef@yukazakiri.dev",
+            "homepage": "https://yukazakiri.dev",
             "role": "Developer"
         }
     ],
     "support": {
-        "email": "stef@marshmallow.dev"
+        "email": "stef@yukazakiri.dev"
     },
     "minimum-stability": "dev",
     "require": {
@@ -31,12 +31,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Marshmallow\\LaravelDatabaseSync\\": "src"
+            "Yukazakiri\\LaravelDatabaseSync\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Marshmallow\\LaravelDatabaseSync\\Tests\\": "tests"
+            "Yukazakiri\\LaravelDatabaseSync\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -51,7 +51,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Marshmallow\\LaravelDatabaseSync\\LaravelDatabaseSyncServiceProvider"
+                "Yukazakiri\\LaravelDatabaseSync\\LaravelDatabaseSyncServiceProvider"
             ]
         }
     }

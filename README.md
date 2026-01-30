@@ -1,5 +1,7 @@
 # Laravel Database Sync
 
+> **Note**: This is a forked version of the original [Laravel Database Sync](https://github.com/marshmallow-packages/laravel-database-sync) package. This version has been enhanced with **PostgreSQL support** and optimized for real-world SSH and containerized workflows.
+
 A powerful Laravel package that enables seamless synchronization of data from a remote database to your local development environment.
 
 ## Table of Contents
@@ -41,10 +43,11 @@ This fork builds on the original PostgreSQL support with improvements focused on
 
 ## Installation
 
-You can install the package via composer:
+You can install the package via composer. Since this is a fork, you may need to add the repository to your `composer.json` first:
 
 ```bash
-composer require marshmallow/laravel-database-sync --dev
+composer config repositories.yukazakiri vcs https://github.com/yukazakiri/laravel-database-sync.git
+composer require yukazakiri/laravel-database-sync --dev
 ```
 
 ## Configuration
@@ -235,7 +238,7 @@ The package supports multi-tenant architectures. Enable it in the configuration:
 ```php
 'multi_tenant' => [
     'landlord' => [
-        'database_name' => 'marshmallow_landord',
+        'database_name' => 'yukazakiri_landord',
         'tables' => [
             'ignore' => [
                 'action_events',
@@ -244,15 +247,15 @@ The package supports multi-tenant architectures. Enable it in the configuration:
     ],
     'tenants' => [
         'database_names' => [
-            'marshmallow_nl' => [
+            'yukazakiri_nl' => [
                 'tables' => [
                     'ignore' => [
                         'users',
                     ],
                 ],
             ],
-            'marshmallow_dev',
-            'marshmallow_io',
+            'yukazakiri_dev',
+            'yukazakiri_io',
         ],
         'tables' => [
             'ignore' => [
@@ -266,8 +269,8 @@ The package supports multi-tenant architectures. Enable it in the configuration:
 Configure tenant-specific settings in your configuration file and use the `--tenant` option to sync specific tenant databases:
 
 ```bash
-php artisan db-sync --tenant="marshmallow_nl" --skip-landlord
-php artisan db-sync --tenant="marshmallow_nl" --skip-landlord --suite=orders
+php artisan db-sync --tenant="yukazakiri_nl" --skip-landlord
+php artisan db-sync --tenant="yukazakiri_nl" --skip-landlord --suite=orders
 ```
 
 ## Testing
@@ -318,7 +321,7 @@ test('your test description', function () {
 
 ## Support
 
-For support, please email stef@marshmallow.dev
+For support, please email stef@yukazakiri.dev
 
 ## License
 

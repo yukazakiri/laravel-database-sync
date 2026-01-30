@@ -1,6 +1,6 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Filters;
+namespace Yukazakiri\LaravelDatabaseSync\Filters;
 
 class FilterSuiteTableOption
 {

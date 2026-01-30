@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Storage;
-use Marshmallow\LaravelDatabaseSync\Enums\SyncDateStartOption;
+use Yukazakiri\LaravelDatabaseSync\Enums\SyncDateStartOption;
 
 beforeEach(function () {
     Storage::fake('local');
@@ -28,12 +28,14 @@ test('database sync command accepts date option', function () {
 
 test('database sync command accepts suite option', function () {
     // Configure a test suite
-    config(['database-sync.suites' => [
-        'test-suite' => [
-            'users',
-            'profiles',
-        ],
-    ]]);
+    config([
+        'database-sync.suites' => [
+            'test-suite' => [
+                'users',
+                'profiles',
+            ],
+        ]
+    ]);
 
     $this->artisan('db-sync', ['--suite' => 'test-suite'])
         ->expectsChoice(
@@ -75,10 +77,12 @@ test('database sync command handles multi-tenant setup', function () {
 
 test('database sync command respects ignored tables', function () {
     // Configure ignored tables
-    config(['database-sync.tables.ignore' => [
-        'migrations',
-        'password_resets',
-    ]]);
+    config([
+        'database-sync.tables.ignore' => [
+            'migrations',
+            'password_resets',
+        ]
+    ]);
 
     $this->artisan('db-sync')
         ->expectsChoice(

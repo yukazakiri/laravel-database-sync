@@ -1,12 +1,12 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions\Mysql;
+namespace Yukazakiri\LaravelDatabaseSync\Actions\Mysql;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Process;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
-use Marshmallow\LaravelDatabaseSync\Actions\ApplyTableFiltersAction;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Actions\ApplyTableFiltersAction;
 
 class CollectTableAction
 {

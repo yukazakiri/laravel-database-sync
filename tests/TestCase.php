@@ -1,9 +1,9 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Tests;
+namespace Yukazakiri\LaravelDatabaseSync\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use Marshmallow\LaravelDatabaseSync\LaravelDatabaseSyncServiceProvider;
+use Yukazakiri\LaravelDatabaseSync\LaravelDatabaseSyncServiceProvider;
 
 class TestCase extends Orchestra
 {

@@ -2,10 +2,10 @@
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
-use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateForTableAction;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\GetLastSyncDateForTableAction;
 
 beforeEach(function () {
     Storage::fake('local');
@@ -54,7 +54,7 @@ test('can log global sync date with specific timestamp', function () {
     LogLastSyncDateValueToStorageWithTimestampAction::handle($config, $timestamp);
 
     // Retrieve sync date from storage
-    $syncDate = \Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateValueFromStorageAction::handle($config);
+    $syncDate = \Yukazakiri\LaravelDatabaseSync\Actions\GetLastSyncDateValueFromStorageAction::handle($config);
 
     expect($syncDate)->not()->toBeNull()
         ->and($syncDate->format('Y-m-d H:i:s'))->toBe('2025-06-25 13:00:00');

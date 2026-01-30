@@ -1,14 +1,14 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Console;
+namespace Yukazakiri\LaravelDatabaseSync\Console;
 
 use Illuminate\Support\Arr;
 use Illuminate\Console\Command;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
 use Symfony\Component\Console\Output\OutputInterface;
-use Marshmallow\LaravelDatabaseSync\Classes\DatabaseSync;
-use Marshmallow\LaravelDatabaseSync\Filters\FilterTenantOption;
-use Marshmallow\LaravelDatabaseSync\Actions\GetAllTableSyncDatesAction;
+use Yukazakiri\LaravelDatabaseSync\Classes\DatabaseSync;
+use Yukazakiri\LaravelDatabaseSync\Filters\FilterTenantOption;
+use Yukazakiri\LaravelDatabaseSync\Actions\GetAllTableSyncDatesAction;
 
 class DatabaseSyncCommand extends Command
 {

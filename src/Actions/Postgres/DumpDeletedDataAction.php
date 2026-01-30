@@ -1,10 +1,10 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions\Postgres;
+namespace Yukazakiri\LaravelDatabaseSync\Actions\Postgres;
 
 use Illuminate\Support\Facades\Process;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 
 class DumpDeletedDataAction
 {
@@ -14,13 +14,13 @@ class DumpDeletedDataAction
         Config $config,
         DatabaseSyncCommand $command,
     ): void {
-        if (! $deletedAtAvailable) {
+        if (!$deletedAtAvailable) {
             return;
         }
 
         $dump_flags = config('database-sync.postgres.dump_action_flags');
         $dumpCommand = "{$config->pg_dump_binary} -h localhost -U {$config->remote_database_username} {$dump_flags} --table={$table} {$config->remote_database}";
-        
+
         $exportCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' " . $dumpCommand . " >> {$config->remote_temporary_file}\"";
 
         if ($command->isDebug()) {

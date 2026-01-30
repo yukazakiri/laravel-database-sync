@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Marshmallow\LaravelDatabaseSync\Classes;
+namespace Yukazakiri\LaravelDatabaseSync\Classes;
 
 use Exception;
 use Illuminate\Support\Collection;
-use Marshmallow\LaravelDatabaseSync\Actions\CopyRemoteFileToLocalAction;
-use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateAction;
-use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateForTableWithFallbackAction;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\DumpSchemaForTablesAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\GetLocalTablesAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\GetMissingLocalTablesAction;
-use Marshmallow\LaravelDatabaseSync\Actions\RemoveLocalFileAction;
-use Marshmallow\LaravelDatabaseSync\Actions\RemoveRemoteFileAction;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
-use Marshmallow\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
-use Marshmallow\LaravelDatabaseSync\Exceptions\OutputWarningException;
+use Yukazakiri\LaravelDatabaseSync\Actions\CopyRemoteFileToLocalAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\GetLastSyncDateAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\GetLastSyncDateForTableWithFallbackAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\LogLastSyncDateValueToStorageWithTimestampAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\DumpSchemaForTablesAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\GetLocalTablesAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\GetMissingLocalTablesAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\RemoveLocalFileAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\RemoveRemoteFileAction;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
+use Yukazakiri\LaravelDatabaseSync\Exceptions\OutputWarningException;
 
 final class DatabaseSync
 {
@@ -85,7 +85,7 @@ final class DatabaseSync
 
     public function isMultiTenantDatabase(): bool
     {
-        return ! is_null($this->config->multi_tenant_database_type);
+        return !is_null($this->config->multi_tenant_database_type);
     }
 
     private function shouldUseBatchTransfer(): bool
@@ -204,7 +204,7 @@ final class DatabaseSync
 
             if (count($stampless_tables)) {
                 $this->command->line(__('We will now start syncing all tables that dont have timestamp columns.'));
-                $stampless_tables->each(fn ($table) => $this->syncFullTable($table));
+                $stampless_tables->each(fn($table) => $this->syncFullTable($table));
             }
 
             // Only update the sync date if everything succeeded
@@ -295,7 +295,7 @@ final class DatabaseSync
 
     private function ensureMissingTablesExist(Collection $tables): void
     {
-        if ($tables->isEmpty() || ! $this->shouldCreateMissingTables()) {
+        if ($tables->isEmpty() || !$this->shouldCreateMissingTables()) {
             return;
         }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Exceptions;
+namespace Yukazakiri\LaravelDatabaseSync\Exceptions;
 
 use Exception;
 

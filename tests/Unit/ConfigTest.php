@@ -1,6 +1,6 @@
 <?php
 
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
 
 test('config can be created with valid parameters', function () {
     $config = Config::make(

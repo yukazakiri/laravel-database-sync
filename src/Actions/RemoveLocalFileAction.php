@@ -1,9 +1,9 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions;
+namespace Yukazakiri\LaravelDatabaseSync\Actions;
 
 use Illuminate\Support\Facades\Process;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
 
 class RemoveLocalFileAction
 {

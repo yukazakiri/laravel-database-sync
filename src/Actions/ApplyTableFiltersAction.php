@@ -1,15 +1,15 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions;
+namespace Yukazakiri\LaravelDatabaseSync\Actions;
 
 use Illuminate\Support\Collection;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Filters\RejectTables;
-use Marshmallow\LaravelDatabaseSync\Filters\RejectTenantTables;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
-use Marshmallow\LaravelDatabaseSync\Filters\RejectLandlordTables;
-use Marshmallow\LaravelDatabaseSync\Filters\FilterSuiteTableOption;
-use Marshmallow\LaravelDatabaseSync\Filters\FilterExclusiveTableOption;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Filters\RejectTables;
+use Yukazakiri\LaravelDatabaseSync\Filters\RejectTenantTables;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Filters\RejectLandlordTables;
+use Yukazakiri\LaravelDatabaseSync\Filters\FilterSuiteTableOption;
+use Yukazakiri\LaravelDatabaseSync\Filters\FilterExclusiveTableOption;
 
 class ApplyTableFiltersAction
 {

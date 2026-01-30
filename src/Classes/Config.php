@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Marshmallow\LaravelDatabaseSync\Classes;
+namespace Yukazakiri\LaravelDatabaseSync\Classes;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
@@ -47,7 +47,7 @@ final class Config
         $this->pg_dump_binary = config('database-sync.postgres.pg_dump_binary', 'pg_dump');
 
         // MAKE VARIABLE
-        $this->cache_file_path = 'marshmallow/database-sync/cache.json';
+        $this->cache_file_path = 'yukazakiri/database-sync/cache.json';
         $this->cache_file_disk = 'local';
     }
 

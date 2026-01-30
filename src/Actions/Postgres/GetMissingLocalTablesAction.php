@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Marshmallow\LaravelDatabaseSync\Actions\Postgres;
+namespace Yukazakiri\LaravelDatabaseSync\Actions\Postgres;
 
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Process;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 
 final class GetMissingLocalTablesAction
 {
@@ -19,7 +19,7 @@ final class GetMissingLocalTablesAction
         }
 
         $tableList = $tables
-            ->map(fn (string $table) => "'".str_replace("'", "''", $table)."'")
+            ->map(fn(string $table) => "'" . str_replace("'", "''", $table) . "'")
             ->implode(', ');
 
         $query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ({$tableList})";
@@ -33,7 +33,7 @@ final class GetMissingLocalTablesAction
         }
 
         $existingTables = collect(explode("\n", mb_trim($result->output())))
-            ->map(fn (string $table) => mb_trim($table))
+            ->map(fn(string $table) => mb_trim($table))
             ->filter();
 
         $missingTables = $tables->diff($existingTables)->values();
