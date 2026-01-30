@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Storage;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Actions\GetLastSyncDateForTableAction;
-use Marshmallow\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Actions\GetLastSyncDateForTableAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\LogLastSyncDateForTableWithTimestampAction;
 
 beforeEach(function () {
     Storage::fake('local');
@@ -52,7 +52,7 @@ test('falls back to global sync date when table-specific date not found', functi
         ]
     ];
 
-    Storage::disk('local')->put('marshmallow/database-sync/cache.json', json_encode($cache));
+    Storage::disk('local')->put('yukazakiri/database-sync/cache.json', json_encode($cache));
 
     // Try to get sync date for table that doesn't have specific sync date
     $syncDate = GetLastSyncDateForTableAction::handle('posts', $config);
@@ -103,7 +103,7 @@ test('can get all table sync dates', function () {
     LogLastSyncDateForTableWithTimestampAction::handle('orders', $config, now());
     LogLastSyncDateForTableWithTimestampAction::handle('products', $config, now());
 
-    $allSyncDates = \Marshmallow\LaravelDatabaseSync\Actions\GetAllTableSyncDatesAction::handle($config);
+    $allSyncDates = \Yukazakiri\LaravelDatabaseSync\Actions\GetAllTableSyncDatesAction::handle($config);
 
     expect($allSyncDates)->toHaveCount(3)
         ->and($allSyncDates->pluck('table')->toArray())->toContain('users', 'orders', 'products');

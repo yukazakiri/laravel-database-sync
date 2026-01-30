@@ -1,6 +1,6 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Enums;
+namespace Yukazakiri\LaravelDatabaseSync\Enums;
 
 use Carbon\Carbon;
 

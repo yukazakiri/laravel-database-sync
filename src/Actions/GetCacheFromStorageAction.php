@@ -1,10 +1,10 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions;
+namespace Yukazakiri\LaravelDatabaseSync\Actions;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
 
 class GetCacheFromStorageAction
 {

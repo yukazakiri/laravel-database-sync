@@ -1,11 +1,11 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions;
+namespace Yukazakiri\LaravelDatabaseSync\Actions;
 
 use Carbon\Carbon;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Enums\SyncDateStartOption;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Enums\SyncDateStartOption;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 
 class GetLastSyncDateForTableWithFallbackAction
 {

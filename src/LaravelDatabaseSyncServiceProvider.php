@@ -1,9 +1,9 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync;
+namespace Yukazakiri\LaravelDatabaseSync;
 
 use Illuminate\Support\ServiceProvider;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
 
 class LaravelDatabaseSyncServiceProvider extends ServiceProvider
 {

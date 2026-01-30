@@ -11,7 +11,7 @@
 |
 */
 
-uses(Marshmallow\LaravelDatabaseSync\Tests\TestCase::class)->in('Feature', 'Unit');
+uses(Yukazakiri\LaravelDatabaseSync\Tests\TestCase::class)->in('Feature', 'Unit');
 
 /*
 |--------------------------------------------------------------------------

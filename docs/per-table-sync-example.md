@@ -4,7 +4,7 @@ This example demonstrates how the new per-table sync tracking works.
 
 ## Example Cache Structure
 
-After syncing some tables, your cache file (`storage/app/marshmallow/database-sync/cache.json`) will look like this:
+After syncing some tables, your cache file (`storage/app/yukazakiri/database-sync/cache.json`) will look like this:
 
 ```json
 {

@@ -44,7 +44,7 @@ This fork builds on the original PostgreSQL support with improvements focused on
 You can install the package via composer:
 
 ```bash
-composer require marshmallow/laravel-database-sync --dev
+composer require yukazakiri/laravel-database-sync --dev
 ```
 
 ## Configuration
@@ -235,7 +235,7 @@ The package supports multi-tenant architectures. Enable it in the configuration:
 ```php
 'multi_tenant' => [
     'landlord' => [
-        'database_name' => 'marshmallow_landord',
+        'database_name' => 'yukazakiri_landord',
         'tables' => [
             'ignore' => [
                 'action_events',
@@ -244,15 +244,15 @@ The package supports multi-tenant architectures. Enable it in the configuration:
     ],
     'tenants' => [
         'database_names' => [
-            'marshmallow_nl' => [
+            'yukazakiri_nl' => [
                 'tables' => [
                     'ignore' => [
                         'users',
                     ],
                 ],
             ],
-            'marshmallow_dev',
-            'marshmallow_io',
+            'yukazakiri_dev',
+            'yukazakiri_io',
         ],
         'tables' => [
             'ignore' => [
@@ -266,8 +266,8 @@ The package supports multi-tenant architectures. Enable it in the configuration:
 Configure tenant-specific settings in your configuration file and use the `--tenant` option to sync specific tenant databases:
 
 ```bash
-php artisan db-sync --tenant="marshmallow_nl" --skip-landlord
-php artisan db-sync --tenant="marshmallow_nl" --skip-landlord --suite=orders
+php artisan db-sync --tenant="yukazakiri_nl" --skip-landlord
+php artisan db-sync --tenant="yukazakiri_nl" --skip-landlord --suite=orders
 ```
 
 ## Testing
@@ -318,7 +318,7 @@ test('your test description', function () {
 
 ## Support
 
-For support, please email stef@marshmallow.dev
+For support, please email stef@yukazakiri.dev
 
 ## License
 

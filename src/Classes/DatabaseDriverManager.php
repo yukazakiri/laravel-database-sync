@@ -1,10 +1,10 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Classes;
+namespace Yukazakiri\LaravelDatabaseSync\Classes;
 
-use Marshmallow\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
-use Marshmallow\LaravelDatabaseSync\Drivers\MysqlDriver;
-use Marshmallow\LaravelDatabaseSync\Drivers\PostgresDriver;
+use Yukazakiri\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
+use Yukazakiri\LaravelDatabaseSync\Drivers\MysqlDriver;
+use Yukazakiri\LaravelDatabaseSync\Drivers\PostgresDriver;
 
 class DatabaseDriverManager
 {
@@ -16,8 +16,8 @@ class DatabaseDriverManager
     public function driver(?string $driver = null): DatabaseDriverInterface
     {
         $driver = $driver ?: config('database-sync.database_driver', 'mysql');
-        
-        if (! isset($this->drivers[$driver])) {
+
+        if (!isset($this->drivers[$driver])) {
             throw new \InvalidArgumentException("Unsupported database driver: {$driver}");
         }
 

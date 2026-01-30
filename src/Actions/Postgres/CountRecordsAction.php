@@ -1,22 +1,24 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions\Postgres;
+namespace Yukazakiri\LaravelDatabaseSync\Actions\Postgres;
 
 use Illuminate\Support\Facades\Process;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
-use Marshmallow\LaravelDatabaseSync\Exceptions\OutputWarningException;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Exceptions\OutputWarningException;
 
 class CountRecordsAction
 {
     public static function handle(string $table, bool $deletedAtAvailable, Config $config, DatabaseSyncCommand $command): int
     {
         $deletedWhere = $deletedAtAvailable ? ' AND deleted_at IS NOT NULL' : '';
-        
+
         $timestamps = GetTableTimestampColumns::handle($table, $config);
         $conditions = [];
-        if (in_array('created_at', $timestamps)) $conditions[] = "created_at >= '{$config->date}'";
-        if (in_array('updated_at', $timestamps)) $conditions[] = "updated_at >= '{$config->date}'";
+        if (in_array('created_at', $timestamps))
+            $conditions[] = "created_at >= '{$config->date}'";
+        if (in_array('updated_at', $timestamps))
+            $conditions[] = "updated_at >= '{$config->date}'";
 
         if (empty($conditions)) {
             // Should not happen if collectTables works correctly
@@ -31,7 +33,7 @@ class CountRecordsAction
         $countDeletedCommand = "ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p -o ControlPersist=10m {$config->remote_user_and_host} \"PGPASSWORD='{$config->remote_database_password}' psql -h 127.0.0.1 -U {$config->remote_database_username} -d {$config->remote_database} -t -c \\\"{$countDeletedQuery}\\\"\"";
 
         $process = Process::timeout($config->process_timeout);
-        
+
         $createdOrUpdatedResult = $process->run($countCreatedOrUpdatedCommand);
         if ($createdOrUpdatedResult->failed()) {
             throw new \Exception(__('Failed to count created/updated records: :error', ['error' => $createdOrUpdatedResult->errorOutput()]));

@@ -1,10 +1,10 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Actions;
+namespace Yukazakiri\LaravelDatabaseSync\Actions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
 
 class GetAllTableSyncDatesAction
 {

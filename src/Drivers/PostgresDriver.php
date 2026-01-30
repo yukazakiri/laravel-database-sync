@@ -1,18 +1,18 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Drivers;
+namespace Yukazakiri\LaravelDatabaseSync\Drivers;
 
-use Marshmallow\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\CollectTableAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\CollectStamplessTablesAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\HasDeletedAtColumn;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\CountRecordsAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\DumpCreatedOrUpdatedDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\DumpDeletedDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\DumpFullTableDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Postgres\ImportDataAction;
+use Yukazakiri\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\CollectTableAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\CollectStamplessTablesAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\HasDeletedAtColumn;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\CountRecordsAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\DumpCreatedOrUpdatedDataAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\DumpDeletedDataAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\DumpFullTableDataAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Postgres\ImportDataAction;
 
 class PostgresDriver implements DatabaseDriverInterface
 {

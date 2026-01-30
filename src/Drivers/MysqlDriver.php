@@ -1,18 +1,18 @@
 <?php
 
-namespace Marshmallow\LaravelDatabaseSync\Drivers;
+namespace Yukazakiri\LaravelDatabaseSync\Drivers;
 
-use Marshmallow\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
-use Marshmallow\LaravelDatabaseSync\Classes\Config;
-use Marshmallow\LaravelDatabaseSync\Console\DatabaseSyncCommand;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\CollectTableAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\CollectStamplessTablesAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\HasDeletedAtColumn;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\CountRecordsAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\DumpCreatedOrUpdatedDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\DumpDeletedDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\DumpFullTableDataAction;
-use Marshmallow\LaravelDatabaseSync\Actions\Mysql\ImportDataAction;
+use Yukazakiri\LaravelDatabaseSync\Contracts\DatabaseDriverInterface;
+use Yukazakiri\LaravelDatabaseSync\Classes\Config;
+use Yukazakiri\LaravelDatabaseSync\Console\DatabaseSyncCommand;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\CollectTableAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\CollectStamplessTablesAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\HasDeletedAtColumn;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\CountRecordsAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\DumpCreatedOrUpdatedDataAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\DumpDeletedDataAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\DumpFullTableDataAction;
+use Yukazakiri\LaravelDatabaseSync\Actions\Mysql\ImportDataAction;
 
 class MysqlDriver implements DatabaseDriverInterface
 {
