@@ -5,7 +5,7 @@
         "yukazakiri",
         "Laravel"
     ],
-    "homepage": "https://github.com/yukazakiri-packages/laravel-database-sync",
+    "homepage": "https://github.com/yukazakiri/laravel-database-sync",
     "type": "library",
     "license": "MIT",
     "authors": [

@@ -1,5 +1,7 @@
 # Laravel Database Sync
 
+> **Note**: This is a forked version of the original [Laravel Database Sync](https://github.com/marshmallow-packages/laravel-database-sync) package. This version has been enhanced with **PostgreSQL support** and optimized for real-world SSH and containerized workflows.
+
 A powerful Laravel package that enables seamless synchronization of data from a remote database to your local development environment.
 
 ## Table of Contents
@@ -41,9 +43,10 @@ This fork builds on the original PostgreSQL support with improvements focused on
 
 ## Installation
 
-You can install the package via composer:
+You can install the package via composer. Since this is a fork, you may need to add the repository to your `composer.json` first:
 
 ```bash
+composer config repositories.yukazakiri vcs https://github.com/yukazakiri/laravel-database-sync.git
 composer require yukazakiri/laravel-database-sync --dev
 ```
 
