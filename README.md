@@ -43,10 +43,9 @@ This fork builds on the original PostgreSQL support with improvements focused on
 
 ## Installation
 
-You can install the package via composer. Since this is a fork, you may need to add the repository to your `composer.json` first:
+You can install the package via composer:
 
 ```bash
-composer config repositories.yukazakiri vcs https://github.com/yukazakiri/laravel-database-sync.git
 composer require yukazakiri/laravel-database-sync --dev
 ```
 
@@ -63,6 +62,9 @@ php artisan vendor:publish --tag="database-sync-config"
 Add these variables to your `.env` file:
 
 ```env
+# Database Driver (mysql or postgres)
+DATABASE_SYNC_DATABASE_DRIVER=postgres
+
 DATABASE_SYNC_REMOTE_USER_AND_HOST="forge@1.1.1.1"
 DATABASE_SYNC_REMOTE_DATABASE_USERNAME=forge
 DATABASE_SYNC_REMOTE_DATABASE_PASSWORD=
@@ -79,6 +81,28 @@ DATABASE_SYNC_POSTGRES_CREATE_MISSING_TABLES=true
 > **Important**: When connecting to a Forge-provisioned database server, you must use the main database user that was created during the initial server provisioning. Other database users created afterward may not have the necessary privileges to execute the required database commands for synchronization.
 
 ## Usage
+
+### PostgreSQL Support
+
+This package supports PostgreSQL in addition to MySQL. To use PostgreSQL:
+
+1.  Set `DATABASE_SYNC_DATABASE_DRIVER=postgres` in your `.env`.
+2.  Ensure PostgreSQL client tools (`psql`, `pg_dump`) are installed on both local and remote systems.
+3.  (Optional) Customize dump flags in `config/database-sync.php`:
+
+```php
+'postgres' => [
+    'dump_action_flags' => '--no-owner --no-privileges --data-only --column-inserts --on-conflict-do-nothing',
+],
+```
+
+#### Migration from MySQL
+
+To migrate an existing MySQL setup to PostgreSQL:
+1. Update your database connections to PostgreSQL.
+2. Set `DATABASE_SYNC_DATABASE_DRIVER=postgres` in your environment.
+3. Ensure PostgreSQL client tools are installed.
+4. Run the sync command as usual.
 
 ### Basic Synchronization
 
